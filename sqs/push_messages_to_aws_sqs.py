@@ -15,7 +15,8 @@ def sendBatch(batch):
     response = sqs_client.send_message_batch(QueueUrl=configs.get("aws.sqs.queue.uri").data,
                                         Entries=batch)
      # Print out any failures
-    print(response.get('Successful'))
+    if(response.get('Failure') is not None):
+            print(response.get('Failure'))
 
 
 try:
@@ -52,10 +53,15 @@ try:
     
     #Convert entries into batches of size n      
     all_batch_messages = list(partition(entries, int(configs.get("batch.size").data)))
+
+    sent_count=0
                                 
     #Send messages to Queue
     for batch in all_batch_messages:
         sendBatch(batch)
+        sent_count = sent_count + len(batch)
+        print("Sent Messages:"+ str(sent_count))
+        
 
 except Exception as e:
     print(e)
