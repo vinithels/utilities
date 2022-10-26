@@ -1,9 +1,6 @@
-import concurrent.futures
 import os
-import re
 import boto3
 from jproperties import Properties
-from datetime import datetime
 
 
 def partition(list, size):
@@ -15,9 +12,12 @@ def sendBatch(batch):
     response = sqs_client.send_message_batch(QueueUrl=configs.get("aws.sqs.queue.uri").data,
                                         Entries=batch)
      # Print out any failures
+    print('Successful :'+str(len(response.get('Successful'))))
     if(response.get('Failure') is not None):
+            print('Failure :'+str(len(response.get('Failure'))))
             print(response.get('Failure'))
 
+sent_count=0
 
 try:
 
@@ -54,7 +54,7 @@ try:
     #Convert entries into batches of size n      
     all_batch_messages = list(partition(entries, int(configs.get("batch.size").data)))
 
-    sent_count=0
+    
                                 
     #Send messages to Queue
     for batch in all_batch_messages:
@@ -62,6 +62,8 @@ try:
         sent_count = sent_count + len(batch)
         print("Sent Messages:"+ str(sent_count))
         
-
+except KeyboardInterrupt:
+       print("Program terminated manually!")
+       raise SystemExit
 except Exception as e:
     print(e)
