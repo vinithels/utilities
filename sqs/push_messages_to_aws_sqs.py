@@ -12,7 +12,7 @@ def sendBatch(batch):
     response = sqs_client.send_message_batch(QueueUrl=configs.get("aws.sqs.queue.uri").data,
                                         Entries=batch)
      # Print out any failures
-    print('Successful :'+str(len(response.get('Successful'))))
+    
     if(response.get('Failure') is not None):
             print('Failure :'+str(len(response.get('Failure'))))
             print(response.get('Failure'))
